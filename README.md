@@ -22,7 +22,7 @@
 
 ## ***INSTALLATION***
 
-* You can install this project in [Hadoop with Docker](https://github.com/ThadaPhan/Hadoop-with-Docker/tree/master)
+* You can install this project in [Hadoop with Docker](https://github.com/ThadaPhan/Hadoop-on-Docker.git)
 
 ## ***BUILD***
 
