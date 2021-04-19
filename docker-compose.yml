@@ -39,6 +39,8 @@ services:
     build:
       context: .
       shm_size: '2gb'
+      args: 
+           FORMAT_NAMENODE_COMMAND: hdfs namenode -format
     container_name: master
     networks:
       default:
@@ -47,9 +49,9 @@ services:
       slave1: 172.16.0.3
       slave2: 172.16.0.4
     command: bash -c  "
-        hdfs namenode -format 
-        && start-dfs.sh
+        start-dfs.sh
         && start-yarn.sh
+        && mr-jobhistory-daemon.sh start historyserver
         && tail -f /dev/null"
     ports:
       - 50070:50070
