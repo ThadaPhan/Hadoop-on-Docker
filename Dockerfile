@@ -37,7 +37,7 @@ ADD config/stop-yarn.sh $HADOOP_HOME/sbin
 
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
-#ENV PATH $HADOOP_HOME/bin:$PATH
+ENV PATH $HADOOP_HOME/bin:$PATH
 RUN /bin/bash -c "source ~/.bashrc"
 
 
@@ -58,6 +58,7 @@ ENV PIG_HOME /usr/local/pig
 ENV PATH $PIG_HOME/bin:$PATH
 ENV PIG_CLASSPATH $HADOOP_CONF_DIR
 RUN /bin/bash -c "source ~/.bashrc"
-
+ARG FORMAT_NAMENODE_COMMAND
+RUN $FORMAT_NAMENODE_COMMAND
 #RUN mkdir /var/run/sshd
 EXPOSE 22
