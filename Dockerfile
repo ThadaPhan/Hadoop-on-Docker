@@ -1,6 +1,8 @@
 FROM ubuntu
 MAINTAINER 18133006@student.hcmute.edu.vn
 RUN apt update && apt install -y openssh-server openssh-client vim openjdk-8-jdk
+RUN apt update && apt install -y scala git
+
 # SSH
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
 RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
@@ -38,7 +40,7 @@ ADD config/stop-yarn.sh $HADOOP_HOME/sbin
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
 ENV PATH $HADOOP_HOME/bin:$PATH
-RUN /bin/bash -c "source ~/.bashrc"
+#RUN /bin/bash -c "source ~/.bashrc"
 
 
 # HIVE
@@ -47,7 +49,7 @@ RUN tar -xzf apache-hive-2.3.8-bin.tar.gz
 RUN mv apache-hive-2.3.8-bin /usr/local/hive
 ENV HIVE_HOME /usr/local/hive
 ENV PATH $HIVE_HOME/bin:$PATH
-RUN /bin/bash -c "source ~/.bashrc"
+#RUN /bin/bash -c "source ~/.bashrc"
 RUN echo "HADOOP_HOME=/usr/local/hadoop" >> $HIVE_HOME/bin/hive-config.sh
 
 # PIG
@@ -57,8 +59,22 @@ RUN mv pig-0.17.0 /usr/local/pig
 ENV PIG_HOME /usr/local/pig
 ENV PATH $PIG_HOME/bin:$PATH
 ENV PIG_CLASSPATH $HADOOP_CONF_DIR
-RUN /bin/bash -c "source ~/.bashrc"
+#RUN /bin/bash -c "source ~/.bashrc"
+
+#SPARK
+
+RUN wget https://downloads.apache.org/spark/spark-3.0.2/spark-3.0.2-bin-hadoop2.7.tgz
+RUN tar xvf spark-3.0.2-bin-hadoop2.7.tgz
+RUN mv spark-3.0.2-bin-hadoop2.7 /usr/local/spark
+ENV SPARK_HOME /usr/local/spark
+ENV PATH $SPARK_HOME/sbin:$PATH
+ENV PATH $SPARK_HOME/bin:$PATH
+
+
+ADD config/slaves $SPARK_HOME/conf/slaves
+RUN echo "export SPARK_MASTER_HOST='172.16.0.2'" >> $SPARK_HOME/conf/spark-env.sh
+RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $SPARK_HOME/conf/spark-env.sh
+
 ARG FORMAT_NAMENODE_COMMAND
 RUN $FORMAT_NAMENODE_COMMAND
-#RUN mkdir /var/run/sshd
 EXPOSE 22

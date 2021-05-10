@@ -1,5 +1,4 @@
 version: "3"
-
 services:
   slave1:
     build:
@@ -10,11 +9,12 @@ services:
       default:
          ipv4_address: 172.16.0.3
     extra_hosts:
-      master: 172.16.0.2
-      slave2: 172.16.0.4
+      - "master: 172.16.0.2"
+      - "slave2: 172.16.0.4"
     command: bash -c  " 
          hadoop-daemon.sh --config /usr/local/hadoop/etc/hadoop start datanode
          && yarn-daemon.sh --config /usr/local/hadoop/etc/hadoop start nodemanager
+         && start-slave.sh master:7077
          && tail -f /dev/null"
     hostname: slave1
     restart: always
@@ -27,11 +27,12 @@ services:
       default:
          ipv4_address: 172.16.0.4
     extra_hosts:
-      master: 172.16.0.2
-      slave1: 172.16.0.3
+        - "master: 172.16.0.2"
+        - "slave1: 172.16.0.3"
     command: bash -c  " 
          hadoop-daemon.sh --config /usr/local/hadoop/etc/hadoop start datanode
          && yarn-daemon.sh --config /usr/local/hadoop/etc/hadoop start nodemanager
+         && start-slave.sh master:7077
          && tail -f /dev/null"
     hostname: slave2
     restart: always
@@ -46,16 +47,19 @@ services:
       default:
          ipv4_address: 172.16.0.2
     extra_hosts:
-      slave1: 172.16.0.3
-      slave2: 172.16.0.4
+      - "slave1: 172.16.0.3"
+      - "slave2: 172.16.0.4"
     command: bash -c  "
         start-dfs.sh
         && start-yarn.sh
         && mr-jobhistory-daemon.sh start historyserver
+        && start-master.sh
         && tail -f /dev/null"
     ports:
       - 50070:50070
       - 8088:8088
+      - 8080:8080
+      - 4040:4040
     hostname: master
     restart: always
 networks:
