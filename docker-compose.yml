@@ -1,53 +1,52 @@
 version: "3"
-
 services:
-  slave1:
+  hadoop-slave1:
     build:
-      context: .
+      context: hadoop/.
       shm_size: '2gb'
-    container_name: slave1
+    container_name: hadoop-slave1
     networks:
       default:
          ipv4_address: 172.16.0.3
     extra_hosts:
-      master: 172.16.0.2
-      slave2: 172.16.0.4
+      - "hadoop-master: 172.16.0.2"
+      - "hadoop-slave2: 172.16.0.4"
     command: bash -c  " 
          hadoop-daemon.sh --config /usr/local/hadoop/etc/hadoop start datanode
          && yarn-daemon.sh --config /usr/local/hadoop/etc/hadoop start nodemanager
          && tail -f /dev/null"
-    hostname: slave1
+    hostname: hadoop-slave1
     restart: always
-  slave2:
+  hadoop-slave2:
     build: 
-      context: .
+      context: hadoop/.
       shm_size: '2gb'
-    container_name: slave2
+    container_name: hadoop-slave2
     networks:
       default:
          ipv4_address: 172.16.0.4
     extra_hosts:
-      master: 172.16.0.2
-      slave1: 172.16.0.3
+        - "hadoop-master: 172.16.0.2"
+        - "hadoop-slave1: 172.16.0.3"
     command: bash -c  " 
          hadoop-daemon.sh --config /usr/local/hadoop/etc/hadoop start datanode
          && yarn-daemon.sh --config /usr/local/hadoop/etc/hadoop start nodemanager
          && tail -f /dev/null"
-    hostname: slave2
+    hostname: hadoop-slave2
     restart: always
-  master:
+  hadoop-master:
     build:
-      context: .
+      context: hadoop/.
       shm_size: '2gb'
       args: 
            FORMAT_NAMENODE_COMMAND: hdfs namenode -format
-    container_name: master
+    container_name: hadoop-master
     networks:
       default:
          ipv4_address: 172.16.0.2
     extra_hosts:
-      slave1: 172.16.0.3
-      slave2: 172.16.0.4
+      - "hadoop-slave1: 172.16.0.3"
+      - "hadoop-slave2: 172.16.0.4"
     command: bash -c  "
         start-dfs.sh
         && start-yarn.sh
@@ -56,8 +55,60 @@ services:
     ports:
       - 50070:50070
       - 8088:8088
-    hostname: master
+    hostname: hadoop-master
     restart: always
+  spark-master:
+    build:
+      context: spark/.
+      shm_size: '2gb'
+    container_name: spark-master
+    networks:
+      default:
+        ipv4_address: 172.16.0.5
+    extra_hosts:
+      - "spark-worker: 172.16.0.6"
+      - "hadoop-master: 172.16.0.2"
+    command: bash -c "
+        start-master.sh
+        && tail -f /dev/null"
+    ports:
+      - 8080:8080
+      - 4040:4040
+    hostname: spark-master
+    restart: always
+  spark-worker:
+    build:
+      context: spark/.
+      shm_size: '2gb'
+    container_name: spark-worker
+    networks:
+      default:
+        ipv4_address: 172.16.0.6
+    extra_hosts:
+      - "spark-master: 172.16.0.5"
+    command: bash -c "
+        start-slave.sh spark://spark-master:7077
+        && tail -f /dev/null"
+    hostname: spark-worker
+    restart: always
+  hive:
+    depends_on:
+      - "hadoop-master"
+    build:
+      context: hive/.
+      shm_size: '2gb'
+    container_name: hive
+    networks:
+      default:
+        ipv4_address: 172.16.0.7
+    extra_hosts:
+      - "hadoop-master: 172.16.0.2"
+      - "spark-master: 172.16.0.5"
+    command: bash -c "
+        tail -f /dev/null"
+    hostname: hive
+    restart: always
+
 networks:
   default:
     external:

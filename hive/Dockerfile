@@ -1,6 +1,8 @@
 FROM ubuntu
 MAINTAINER 18133006@student.hcmute.edu.vn
 RUN apt update && apt install -y openssh-server openssh-client vim openjdk-8-jdk
+RUN apt update && apt install -y git
+
 # SSH
 RUN ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
 RUN cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
@@ -22,9 +24,6 @@ ENV HADOOP_CONF_DIR $HADOOP_HOME/etc/hadoop
 ENV PATH $HADOOP_HOME/sbin:$PATH
 
 
-RUN mkdir /home/hadoop
-RUN mkdir /home/hadoop/tmp /home/hadoop/hdfs_name /home/hadoop/hdfs_data
-
 ADD config/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
 ADD config/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 ADD config/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
@@ -38,27 +37,13 @@ ADD config/stop-yarn.sh $HADOOP_HOME/sbin
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
 ENV PATH $HADOOP_HOME/bin:$PATH
-RUN /bin/bash -c "source ~/.bashrc"
 
-
-# HIVE
-RUN wget https://mirror.downloadvn.com/apache/hive/hive-2.3.8/apache-hive-2.3.8-bin.tar.gz
-RUN tar -xzf apache-hive-2.3.8-bin.tar.gz
-RUN mv apache-hive-2.3.8-bin /usr/local/hive
+#HIVE
+RUN apt update && wget https://downloads.apache.org/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz
+RUN tar xzf apache-hive-3.1.2-bin.tar.gz
+RUN mv apache-hive-3.1.2-bin /usr/local/hive
 ENV HIVE_HOME /usr/local/hive
 ENV PATH $HIVE_HOME/bin:$PATH
-RUN /bin/bash -c "source ~/.bashrc"
-RUN echo "HADOOP_HOME=/usr/local/hadoop" >> $HIVE_HOME/bin/hive-config.sh
 
-# PIG
-RUN wget http://www-us.apache.org/dist/pig/pig-0.17.0/pig-0.17.0.tar.gz
-RUN tar -xzf pig-0.17.0.tar.gz 
-RUN mv pig-0.17.0 /usr/local/pig
-ENV PIG_HOME /usr/local/pig
-ENV PATH $PIG_HOME/bin:$PATH
-ENV PIG_CLASSPATH $HADOOP_CONF_DIR
-RUN /bin/bash -c "source ~/.bashrc"
-ARG FORMAT_NAMENODE_COMMAND
-RUN $FORMAT_NAMENODE_COMMAND
-#RUN mkdir /var/run/sshd
-EXPOSE 22
+
+
