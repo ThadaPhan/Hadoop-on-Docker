@@ -44,16 +44,16 @@ ENV PATH $HADOOP_HOME/bin:$PATH
 
 
 # HIVE
-RUN wget https://mirror.downloadvn.com/apache/hive/hive-2.3.8/apache-hive-2.3.8-bin.tar.gz
-RUN tar -xzf apache-hive-2.3.8-bin.tar.gz
-RUN mv apache-hive-2.3.8-bin /usr/local/hive
+RUN wget https://mirror.downloadvn.com/apache/hive/hive-2.3.9/apache-hive-2.3.9-bin.tar.gz
+RUN tar -xzf apache-hive-2.3.9-bin.tar.gz
+RUN mv apache-hive-2.3.9-bin /usr/local/hive
 ENV HIVE_HOME /usr/local/hive
 ENV PATH $HIVE_HOME/bin:$PATH
 #RUN /bin/bash -c "source ~/.bashrc"
 RUN echo "HADOOP_HOME=/usr/local/hadoop" >> $HIVE_HOME/bin/hive-config.sh
 
 # PIG
-RUN wget http://www-us.apache.org/dist/pig/pig-0.17.0/pig-0.17.0.tar.gz
+RUN wget https://downloads.apache.org/pig/pig-0.17.0/pig-0.17.0.tar.gz
 RUN tar -xzf pig-0.17.0.tar.gz 
 RUN mv pig-0.17.0 /usr/local/pig
 ENV PIG_HOME /usr/local/pig
@@ -63,9 +63,9 @@ ENV PIG_CLASSPATH $HADOOP_CONF_DIR
 
 #SPARK
 
-RUN wget https://downloads.apache.org/spark/spark-3.0.2/spark-3.0.2-bin-hadoop2.7.tgz
-RUN tar xvf spark-3.0.2-bin-hadoop2.7.tgz
-RUN mv spark-3.0.2-bin-hadoop2.7 /usr/local/spark
+RUN wget https://downloads.apache.org/spark/spark-3.0.3/spark-3.0.3-bin-hadoop2.7.tgz
+RUN tar xvf spark-3.0.3-bin-hadoop2.7.tgz
+RUN mv spark-3.0.3-bin-hadoop2.7 /usr/local/spark
 ENV SPARK_HOME /usr/local/spark
 ENV PATH $SPARK_HOME/sbin:$PATH
 ENV PATH $SPARK_HOME/bin:$PATH
